@@ -9,6 +9,7 @@ public class EnemyAI : MonoBehaviour
     //cached refs
     [SerializeField] Transform target;
     NavMeshAgent nMA;
+    Animator anim;
 
     //params
     [SerializeField] float aggroRange = 5f;
@@ -22,6 +23,7 @@ public class EnemyAI : MonoBehaviour
     private void Start()
     {
         nMA = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
     }
 
     private void Update()
@@ -33,12 +35,20 @@ public class EnemyAI : MonoBehaviour
                 if (distanceToPlayer <= attackRange)
                 {
                     AttackPlayer();
-                }
+                    anim.SetBool("IsAttacking", true);
+            }
             if (distanceToPlayer <= aggroRange)
             {
                 ChasePlayer();
+                anim.SetBool("IsMoving", true);
             }
-            else isAggro = false;
+            else
+            {
+                isAggro = false;
+                anim.SetBool("IsMoving", false);
+                anim.SetBool("IsAttacking", false);
+            }
+            
             }
 
 
@@ -46,7 +56,7 @@ public class EnemyAI : MonoBehaviour
 
     void AttackPlayer()
     {
-        Debug.Log("Attacking");
+        
     }
 
     void ChasePlayer()
@@ -70,5 +80,10 @@ public class EnemyAI : MonoBehaviour
         Quaternion desiredRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
 
         Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * rotationTime);
+    }
+
+    public void OnDamageTaken()
+    {
+        ChasePlayer();
     }
 }
